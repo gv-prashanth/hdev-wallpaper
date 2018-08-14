@@ -1,12 +1,8 @@
 package com.vadrin.hdevwallpaper.controllers;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.imageio.ImageIO;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
@@ -23,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.vadrin.hdevwallpaper.services.ImageService;
 import com.vadrin.hdevwallpaper.services.OSService;
 
 @Component
@@ -35,6 +32,9 @@ public class HDEVController implements CommandLineRunner {
 	@Autowired
 	OSService osService;
 
+	@Autowired
+	ImageService imageService;
+
 	WebDriver driver;
 
 	private static final int MAX_WAIT_TIME = 5000;
@@ -42,28 +42,23 @@ public class HDEVController implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
-		driver.get("https://www.ustream.tv/embed/17074538?html5ui");
+		waitTillBrowserLoads();
+		while (true) {
+			log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
+			File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+			imageService.convertPngToJpg(screenshot);
+			//imageService.resizeImage(screenshot);
+			osService.setWallpaper(screenshot);
+			screenshot.delete();
+			log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
+		}
+	}
 
+	private void waitTillBrowserLoads() {
+		driver.get("https://www.ustream.tv/embed/17074538?html5ui");
 		(new WebDriverWait(driver, MAX_WAIT_TIME)).until(ExpectedConditions.textToBePresentInElementLocated(
 				By.xpath("//*[@id=\"playScreen\"]/div[2]"), "ISS HD Earth Viewing Experiment"));
 		driver.findElement(By.xpath("//*[@id=\"playScreen\"]/div[1]")).click();
-
-		while (true) {
-			log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
-
-			File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-			File tempFile = File.createTempFile(TEMPFILENAME, "." + "jpg");
-
-			BufferedImage image = ImageIO.read(scrFile);
-			BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-			result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
-			ImageIO.write(result, "jpg", tempFile);
-
-			osService.setWallpaper(tempFile);
-			tempFile.delete();
-			scrFile.delete();
-			log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
-		}
 	}
 
 	public HDEVController() {
