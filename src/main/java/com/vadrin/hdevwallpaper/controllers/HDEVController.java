@@ -46,29 +46,59 @@ public class HDEVController implements CommandLineRunner {
 		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
 		while (true) {
 			log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
-			StopWatch sw = new StopWatch();
-			sw.start("takeScreenshot");
-			BufferedImage hdevServiceScreenshot = hdevService.takeScreenshot();
-			sw.stop();
-			sw.start("cropImage");
+			BufferedImage hdevServiceScreenshotSmall = hdevService.takeScreenshot();
+			BufferedImage hdevServiceScreenshot = imageService.resizeImage(hdevServiceScreenshotSmall);
 			BufferedImage hdevServiceResize = imageService.cropImage(hdevServiceScreenshot, new Rectangle(cropFixels, 0,
 					(hdevServiceScreenshot.getWidth() - 2 * cropFixels), hdevServiceScreenshot.getHeight()));
-			sw.stop();
-			sw.start("issServiceScreenshot");
 			BufferedImage issServiceScreenshot = imageService.resizeImage(issService.takeScreenshot(), issScale);
-			sw.stop();
-			sw.start("overlapImages");
 			BufferedImage screenshotPng = imageService.overlapImages(issServiceScreenshot, hdevServiceResize);
-			sw.stop();
-			sw.start("convertPngToJpg");
 			BufferedImage screenshotJpg = imageService.convertPngToJpg(screenshotPng);
-			sw.stop();
-			sw.start("setWallpaper");
 			osService.setWallpaper(screenshotJpg);
-			sw.stop();
-			System.out.println("Table describing all tasks performed :\n" + sw.prettyPrint());
 			log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
 		}
 	}
+
+	// @Override
+	// public void run(String... args) throws Exception {
+	// log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
+	// while (true) {
+	// log.info("Attempting to update wallpaper at {}", dateFormat.format(new
+	// Date()));
+	// StopWatch sw = new StopWatch();
+	// sw.start("takeScreenshot");
+	// BufferedImage hdevServiceScreenshotSmall = hdevService.takeScreenshot();
+	// sw.stop();
+	// sw.start("resizeImage");
+	// BufferedImage hdevServiceScreenshot =
+	// imageService.resizeImage(hdevServiceScreenshotSmall);
+	// sw.stop();
+	// sw.start("cropImage");
+	// BufferedImage hdevServiceResize =
+	// imageService.cropImage(hdevServiceScreenshot, new Rectangle(cropFixels,
+	// 0,
+	// (hdevServiceScreenshot.getWidth() - 2 * cropFixels),
+	// hdevServiceScreenshot.getHeight()));
+	// sw.stop();
+	// sw.start("issServiceScreenshot");
+	// BufferedImage issServiceScreenshot =
+	// imageService.resizeImage(issService.takeScreenshot(), issScale);
+	// sw.stop();
+	// sw.start("overlapImages");
+	// BufferedImage screenshotPng =
+	// imageService.overlapImages(issServiceScreenshot, hdevServiceResize);
+	// sw.stop();
+	// sw.start("convertPngToJpg");
+	// BufferedImage screenshotJpg =
+	// imageService.convertPngToJpg(screenshotPng);
+	// sw.stop();
+	// sw.start("setWallpaper");
+	// osService.setWallpaper(screenshotJpg);
+	// sw.stop();
+	// System.out.println("Table describing all tasks performed :\n" +
+	// sw.prettyPrint());
+	// log.info("Completed setting new wallpaper at {}", dateFormat.format(new
+	// Date()));
+	// }
+	// }
 
 }

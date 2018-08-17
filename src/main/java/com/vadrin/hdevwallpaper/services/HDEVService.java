@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -29,10 +30,13 @@ public class HDEVService {
 
 	@Value("${com.vadrin.hdev-wallpaper.timeout}")
 	private int timeout;
-	
 	@Value("${com.vadrin.hdev-wallpaper.hdevStreamUrl}")
 	private String hdevStreamUrl;
-	
+	@Value("${com.vadrin.hdev-wallpaper.screenWidth}")
+	private int screenWidth;
+	@Value("${com.vadrin.hdev-wallpaper.screenHeight}")
+	private int screenHeight;
+
 	private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
 	private static final String GECKO_DRIVER = "webdriver.gecko.driver";
 	private static final String COMMANDLINE_HEADLESS = "--headless";
@@ -45,6 +49,8 @@ public class HDEVService {
 		FirefoxOptions firefoxOptions = new FirefoxOptions();
 		firefoxOptions.setBinary(firefoxBinary);
 		driver = new FirefoxDriver(firefoxOptions);
+		Dimension d = new Dimension(screenWidth/2, screenHeight/2);
+		driver.manage().window().setSize(d);
 	}
 
 	private void openWebsite() {
