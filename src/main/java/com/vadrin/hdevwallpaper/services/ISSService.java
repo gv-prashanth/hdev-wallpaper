@@ -21,6 +21,9 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -31,13 +34,14 @@ public class ISSService {
 
 	@Value("${com.vadrin.hdev-wallpaper.timeout}")
 	private int timeout;
-	
+
 	@Value("${com.vadrin.hdev-wallpaper.issUrl}")
 	private String issUrl;
 
 	private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
 	private static final String GECKO_DRIVER = "webdriver.gecko.driver";
 	private static final String COMMANDLINE_HEADLESS = "--headless";
+	private static final int CACHE_FREQUENCY = 30000; // ms
 
 	private void openBrowser() throws FileNotFoundException {
 		FirefoxBinary firefoxBinary = new FirefoxBinary();
@@ -55,9 +59,16 @@ public class ISSService {
 				.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"isst_map\"]")));
 	}
 
+	@Cacheable(value = "issScreenshot")
 	public BufferedImage takeScreenshot() throws IOException {
 		WebElement element = driver.findElement(By.xpath("//*[@id=\"isst_map\"]"));
 		return getScreenshotOfElement(element);
+	}
+
+	@CacheEvict(value = "issScreenshot", allEntries = true)
+	@Scheduled(fixedDelay = CACHE_FREQUENCY)
+	public void refreshScreenshotCache() {
+		// This method will remove all 'screenshots' from cache.
 	}
 
 	private BufferedImage getScreenshotOfElement(WebElement ele) throws IOException {
