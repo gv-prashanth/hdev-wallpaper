@@ -27,7 +27,6 @@ public class HDEVController implements CommandLineRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(HDEVController.class);
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-	private static final String TEMPFILENAME = "hdev-wallpaper";
 
 	@Autowired
 	OSService osService;
@@ -42,7 +41,6 @@ public class HDEVController implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
-		waitTillBrowserLoads();
 		while (true) {
 			log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
 			File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
@@ -70,6 +68,7 @@ public class HDEVController implements CommandLineRunner {
 		FirefoxOptions firefoxOptions = new FirefoxOptions();
 		firefoxOptions.setBinary(firefoxBinary);
 		driver = new FirefoxDriver(firefoxOptions);
+		waitTillBrowserLoads();
 	}
 
 }
