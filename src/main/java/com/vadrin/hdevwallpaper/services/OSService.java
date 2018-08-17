@@ -17,10 +17,11 @@ public class OSService {
 
 	private static final String USER32 = "user32";
 	private static final String TEMPFILENAME = "hdev-wallpaper";
+	private static final String JPG = "jpg";
 
 	public void setWallpaper(BufferedImage image) throws IOException {
-		File tempFile = File.createTempFile(TEMPFILENAME, ".jpg");
-		ImageIO.write(image, "jpg",  tempFile);
+		File tempFile = File.createTempFile(TEMPFILENAME, "." + JPG);
+		ImageIO.write(image, JPG, tempFile);
 		User32.INSTANCE.SystemParametersInfo(0x0014, 0, tempFile.getAbsolutePath(), 1);
 		tempFile.delete();
 	}

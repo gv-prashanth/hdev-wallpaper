@@ -26,19 +26,23 @@ public class BrowserService {
 	private WebDriver driver;
 
 	private static final int MAX_WAIT_TIME = 5000;
+	private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
+	private static final String GECKO_DRIVER = "webdriver.gecko.driver";
+	private static final String COMMANDLINE_HEADLESS = "--headless";
+	private static final String EMBED_URL = "https://www.ustream.tv/embed/17074538?html5ui";
 
 	private void openBrowser() throws FileNotFoundException {
 		FirefoxBinary firefoxBinary = new FirefoxBinary();
-		firefoxBinary.addCommandLineOptions("--headless");
-		File geckoDriver = ResourceUtils.getFile("classpath:execs/geckodriver.exe");
-		System.setProperty("webdriver.gecko.driver", geckoDriver.getAbsolutePath());
+		firefoxBinary.addCommandLineOptions(COMMANDLINE_HEADLESS);
+		File geckoDriver = ResourceUtils.getFile(GECKO_LOC);
+		System.setProperty(GECKO_DRIVER, geckoDriver.getAbsolutePath());
 		FirefoxOptions firefoxOptions = new FirefoxOptions();
 		firefoxOptions.setBinary(firefoxBinary);
 		driver = new FirefoxDriver(firefoxOptions);
 	}
 
 	private void openWebsite() {
-		driver.get("https://www.ustream.tv/embed/17074538?html5ui");
+		driver.get(EMBED_URL);
 		(new WebDriverWait(driver, MAX_WAIT_TIME)).until(ExpectedConditions.textToBePresentInElementLocated(
 				By.xpath("//*[@id=\"playScreen\"]/div[2]"), "ISS HD Earth Viewing Experiment"));
 		driver.findElement(By.xpath("//*[@id=\"playScreen\"]/div[1]")).click();
