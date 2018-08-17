@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 
 import org.openqa.selenium.By;
@@ -17,19 +18,24 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 @Service
-public class BrowserService {
+public class HDEVService {
 
 	private WebDriver driver;
 
-	private static final int MAX_WAIT_TIME = 5000;
+	@Value("${com.vadrin.hdev-wallpaper.timeout}")
+	private int timeout;
+	
+	@Value("${com.vadrin.hdev-wallpaper.hdevStreamUrl}")
+	private String hdevStreamUrl;
+	
 	private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
 	private static final String GECKO_DRIVER = "webdriver.gecko.driver";
 	private static final String COMMANDLINE_HEADLESS = "--headless";
-	private static final String EMBED_URL = "https://www.ustream.tv/embed/17074538?html5ui";
 
 	private void openBrowser() throws FileNotFoundException {
 		FirefoxBinary firefoxBinary = new FirefoxBinary();
@@ -42,20 +48,20 @@ public class BrowserService {
 	}
 
 	private void openWebsite() {
-		driver.get(EMBED_URL);
-		(new WebDriverWait(driver, MAX_WAIT_TIME)).until(ExpectedConditions.textToBePresentInElementLocated(
+		driver.get(hdevStreamUrl);
+		(new WebDriverWait(driver, timeout)).until(ExpectedConditions.textToBePresentInElementLocated(
 				By.xpath("//*[@id=\"playScreen\"]/div[2]"), "ISS HD Earth Viewing Experiment"));
 		driver.findElement(By.xpath("//*[@id=\"playScreen\"]/div[1]")).click();
 	}
 
-	public BufferedImage takePageScreenshot() throws IOException {
+	public BufferedImage takeScreenshot() throws IOException {
 		byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
 		ByteArrayInputStream bis = new ByteArrayInputStream(screenshot);
 		return ImageIO.read(bis);
 	}
 
-	public BrowserService() throws FileNotFoundException {
-		super();
+	@PostConstruct
+	public void initializeService() throws FileNotFoundException {
 		openBrowser();
 		openWebsite();
 	}

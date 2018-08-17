@@ -1,5 +1,6 @@
 package com.vadrin.hdevwallpaper.controllers;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,10 +8,12 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.vadrin.hdevwallpaper.services.BrowserService;
+import com.vadrin.hdevwallpaper.services.HDEVService;
+import com.vadrin.hdevwallpaper.services.ISSService;
 import com.vadrin.hdevwallpaper.services.ImageService;
 import com.vadrin.hdevwallpaper.services.OSService;
 
@@ -27,14 +30,26 @@ public class HDEVController implements CommandLineRunner {
 	ImageService imageService;
 
 	@Autowired
-	BrowserService browserService;
+	HDEVService hdevService;
+
+	@Autowired
+	ISSService issService;
+
+	@Value("${com.vadrin.hdev-wallpaper.cropPixels}")
+	private int cropFixels;
+	@Value("${com.vadrin.hdev-wallpaper.issScale}")
+	private double issScale;
 
 	@Override
 	public void run(String... args) throws Exception {
 		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
 		while (true) {
 			log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
-			BufferedImage screenshotPng = browserService.takePageScreenshot();
+			BufferedImage hdevServiceScreenshot = hdevService.takeScreenshot();
+			BufferedImage hdevServiceResize = imageService.cropImage(hdevServiceScreenshot, new Rectangle(cropFixels,
+					0, (hdevServiceScreenshot.getWidth() - 2 * cropFixels), hdevServiceScreenshot.getHeight()));
+			BufferedImage issServiceScreenshot = imageService.resizeImage(issService.takeScreenshot(), issScale);
+			BufferedImage screenshotPng = imageService.overlapImages(issServiceScreenshot, hdevServiceResize);
 			BufferedImage screenshotJpg = imageService.convertPngToJpg(screenshotPng);
 			osService.setWallpaper(screenshotJpg);
 			log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));

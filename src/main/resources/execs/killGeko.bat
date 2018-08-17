@@ -4,3 +4,4 @@ rem   useful if you are trying to clean your project, and your ide is complainin
 
 taskkill /im firefox.exe /f
 taskkill /im geckodriver.exe /f
+pause
