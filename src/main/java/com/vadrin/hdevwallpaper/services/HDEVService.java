@@ -36,15 +36,17 @@ public class HDEVService {
 	private int screenWidth;
 	@Value("${com.vadrin.hdev-wallpaper.screenHeight}")
 	private int screenHeight;
+	@Value("${com.vadrin.hdev-wallpaper.geckoLocation}")
+	private String geckoLocation;
 
-	private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
+	//private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
 	private static final String GECKO_DRIVER = "webdriver.gecko.driver";
 	private static final String COMMANDLINE_HEADLESS = "--headless";
 
 	private void openBrowser() throws FileNotFoundException {
 		FirefoxBinary firefoxBinary = new FirefoxBinary();
 		firefoxBinary.addCommandLineOptions(COMMANDLINE_HEADLESS);
-		File geckoDriver = ResourceUtils.getFile(GECKO_LOC);
+		File geckoDriver = new File(geckoLocation);
 		System.setProperty(GECKO_DRIVER, geckoDriver.getAbsolutePath());
 		FirefoxOptions firefoxOptions = new FirefoxOptions();
 		firefoxOptions.setBinary(firefoxBinary);
