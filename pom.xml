@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>hdev-wallpaper</name>
-	<description>Auto desktop wallpaper from NASA at https://eol.jsc.nasa.gov/ESRS/HDEV/</description>
+	<description>Live desktop wallpaper from NASA International Space Station.</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
