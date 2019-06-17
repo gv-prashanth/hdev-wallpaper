@@ -1,2 +1,2 @@
 # hdev-wallpaper
-Auto desktop wallpaper from NASA at https://eol.jsc.nasa.gov/ESRS/HDEV/
+Live desktop wallpaper from NASA International Space Station.
