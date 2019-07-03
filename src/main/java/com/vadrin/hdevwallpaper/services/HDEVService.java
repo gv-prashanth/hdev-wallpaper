@@ -21,7 +21,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 @Service
 public class HDEVService {
@@ -39,9 +38,11 @@ public class HDEVService {
 	@Value("${com.vadrin.hdev-wallpaper.geckoLocation}")
 	private String geckoLocation;
 
-	//private static final String GECKO_LOC = "classpath:execs/geckodriver.exe";
+	// private static final String GECKO_LOC =
+	// "classpath:execs/geckodriver.exe";
 	private static final String GECKO_DRIVER = "webdriver.gecko.driver";
 	private static final String COMMANDLINE_HEADLESS = "--headless";
+	private static final String TRIGGER_TEXT = "ISS HD Earth Viewing Experiment";
 
 	private void openBrowser() throws FileNotFoundException {
 		FirefoxBinary firefoxBinary = new FirefoxBinary();
@@ -51,15 +52,15 @@ public class HDEVService {
 		FirefoxOptions firefoxOptions = new FirefoxOptions();
 		firefoxOptions.setBinary(firefoxBinary);
 		driver = new FirefoxDriver(firefoxOptions);
-		Dimension d = new Dimension(screenWidth/2, screenHeight/2);
+		Dimension d = new Dimension(screenWidth / 2, screenHeight / 2);
 		driver.manage().window().setSize(d);
 	}
 
 	private void openWebsite() {
 		driver.get(hdevStreamUrl);
-		(new WebDriverWait(driver, timeout)).until(ExpectedConditions.textToBePresentInElementLocated(
-				By.xpath("//*[@id=\"playScreen\"]/div[2]"), "ISS HD Earth Viewing Experiment"));
-		driver.findElement(By.xpath("//*[@id=\"playScreen\"]/div[1]")).click();
+		(new WebDriverWait(driver, timeout)).until(
+				ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '" + TRIGGER_TEXT + "')]")));
+		driver.findElement(By.xpath("//*[contains(text(), '" + TRIGGER_TEXT + "')]")).click();
 	}
 
 	public BufferedImage takeScreenshot() throws IOException {
