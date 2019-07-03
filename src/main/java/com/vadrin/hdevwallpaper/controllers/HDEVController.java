@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import com.vadrin.hdevwallpaper.services.HDEVService;
 import com.vadrin.hdevwallpaper.services.ISSService;
