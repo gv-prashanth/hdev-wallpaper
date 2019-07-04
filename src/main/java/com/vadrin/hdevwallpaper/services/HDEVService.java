@@ -60,7 +60,7 @@ public class HDEVService {
 		driver.get(hdevStreamUrl);
 		(new WebDriverWait(driver, timeout)).until(
 				ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '" + TRIGGER_TEXT + "')]")));
-		driver.findElement(By.xpath("//*[contains(text(), '" + TRIGGER_TEXT + "')]")).click();
+		driver.findElement(By.xpath("/html/body")).click();
 	}
 
 	public BufferedImage takeScreenshot() throws IOException {
