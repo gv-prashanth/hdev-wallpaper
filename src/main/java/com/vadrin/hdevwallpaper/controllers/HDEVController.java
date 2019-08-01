@@ -2,8 +2,12 @@ package com.vadrin.hdevwallpaper.controllers;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +26,7 @@ public class HDEVController implements CommandLineRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(HDEVController.class);
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+	private static final String TEMPFILENAME = "hdev-wallpaper";
 
 	@Autowired
 	OSService osService;
@@ -41,19 +46,25 @@ public class HDEVController implements CommandLineRunner {
 	private double issScale;
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
 		while (true) {
-			log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
-			BufferedImage hdevServiceScreenshotSmall = hdevService.takeScreenshot();
-			BufferedImage hdevServiceScreenshot = imageService.resizeImage(hdevServiceScreenshotSmall);
-			BufferedImage hdevServiceResize = imageService.cropImage(hdevServiceScreenshot, new Rectangle(cropFixels, 0,
-					(hdevServiceScreenshot.getWidth() - 2 * cropFixels), hdevServiceScreenshot.getHeight()));
-			BufferedImage issServiceScreenshot = imageService.resizeImage(issService.takeScreenshot(), issScale);
-			BufferedImage screenshotPng = imageService.overlapImages(issServiceScreenshot, hdevServiceResize);
-			BufferedImage screenshotJpg = imageService.convertPngToJpg(screenshotPng);
-			osService.setWallpaper(screenshotJpg);
-			log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
+			try {
+				log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
+				BufferedImage hdevServiceScreenshotSmall = hdevService.takeScreenshot();
+				BufferedImage hdevServiceCropped = imageService.cropImage(hdevServiceScreenshotSmall, new Rectangle(cropFixels, 0,
+						(hdevServiceScreenshotSmall.getWidth() - 2 * cropFixels), hdevServiceScreenshotSmall.getHeight()));
+				BufferedImage issServiceScreenshot = imageService.resizeImage(issService.takeScreenshot(), issScale);
+				BufferedImage screenshotPng = imageService.overlapImages(issServiceScreenshot, hdevServiceCropped);
+				BufferedImage screenshotJpg = imageService.convertPngToJpg(screenshotPng);
+				File outputfile = File.createTempFile(TEMPFILENAME, "." + "jpg");
+				ImageIO.write(screenshotJpg, "jpg", outputfile);
+				osService.setWallpaper(outputfile);
+				outputfile.delete();
+				log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
+			}catch(Exception e) {
+				log.info("Exception setting new wallpaper at {}", dateFormat.format(new Date()));
+			}
 		}
 	}
 
