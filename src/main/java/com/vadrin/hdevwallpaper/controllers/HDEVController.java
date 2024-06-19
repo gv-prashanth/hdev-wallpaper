@@ -2,12 +2,8 @@ package com.vadrin.hdevwallpaper.controllers;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +22,6 @@ public class HDEVController implements CommandLineRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(HDEVController.class);
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-	private static final String TEMPFILENAME = "hdev-wallpaper";
 
 	@Autowired
 	OSService osService;
@@ -51,24 +46,22 @@ public class HDEVController implements CommandLineRunner {
 	public void run(String... args) {
 		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
 		try {
-			File outputfile = File.createTempFile(TEMPFILENAME, "." + "jpg");
 			while (true) {
 				log.info("Starting to update wallpaper at {}", dateFormat.format(new Date()));
 				BufferedImage hdevServiceScreenshotSmall = hdevService.takeScreenshot();
 				BufferedImage hdevServiceCropped = imageService.cropImage(hdevServiceScreenshotSmall,
 						new Rectangle(cropPixels, 0, (hdevServiceScreenshotSmall.getWidth() - 2 * cropPixels),
 								hdevServiceScreenshotSmall.getHeight()));
+				BufferedImage screenshotJpg = null;
 				if(showMap) {
 					BufferedImage issServiceScreenshot = imageService.resizeImage(issService.takeScreenshot(), issScale);
 					BufferedImage screenshotPng = imageService.overlapImages(issServiceScreenshot, hdevServiceCropped);
-					BufferedImage screenshotJpg = imageService.convertPngToJpg(screenshotPng);
-					ImageIO.write(screenshotJpg, "jpg", outputfile);
+					screenshotJpg = imageService.convertPngToJpg(screenshotPng);
 				}else {
-					BufferedImage screenshotJpg = imageService.convertPngToJpg(hdevServiceCropped);
-					ImageIO.write(screenshotJpg, "jpg", outputfile);
+					screenshotJpg = imageService.convertPngToJpg(hdevServiceCropped);
 				}
 				log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
-				osService.setWallpaper(outputfile);
+				osService.setWallpaper(screenshotJpg);
 				log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
 			}
 		} catch (Exception e) {
