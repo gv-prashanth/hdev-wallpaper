@@ -55,8 +55,9 @@ public class ImageService {
 
 	public BufferedImage overlapImages(BufferedImage forground, BufferedImage background) {
 		graphics = background.getGraphics();
-		graphics.drawImage(forground, background.getWidth() - forground.getWidth(),
-				background.getHeight() - forground.getHeight(), null);
+		//graphics.drawImage(forground, background.getWidth() - forground.getWidth(),
+		//		background.getHeight() - forground.getHeight(), null);
+		graphics.drawImage(forground, background.getWidth() - forground.getWidth(), 0, null);
 		graphics.dispose();
 		return background;
 	}
