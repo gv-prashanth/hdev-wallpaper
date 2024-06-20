@@ -2,6 +2,7 @@ package com.vadrin.hdevwallpaper.controllers;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -44,11 +45,11 @@ public class HDEVController implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		log.info("Starting hdev-wallpaper at {}", dateFormat.format(new Date()));
 		try {
 			while (true) {
-				log.info("Starting to update wallpaper at {}", dateFormat.format(new Date()));
+				log.info("Started setting new wallpaper at {}", dateFormat.format(new Date()));
 				BufferedImage hdevServiceScreenshotSmall = hdevService.takeScreenshot();
+				log.info("Captured Screenshot at {}", dateFormat.format(new Date()));
 				BufferedImage hdevServiceCropped = imageService.cropImage(hdevServiceScreenshotSmall,
 						new Rectangle(cropPixels, 0, (hdevServiceScreenshotSmall.getWidth() - 2 * cropPixels),
 								hdevServiceScreenshotSmall.getHeight()));
@@ -60,9 +61,9 @@ public class HDEVController implements CommandLineRunner {
 				}else {
 					screenshotJpg = imageService.convertPngToJpg(hdevServiceCropped);
 				}
-				log.info("Attempting to update wallpaper at {}", dateFormat.format(new Date()));
-				osService.setWallpaper(screenshotJpg);
-				log.info("Completed setting new wallpaper at {}", dateFormat.format(new Date()));
+				File file = osService.constructFile(screenshotJpg);
+				osService.setWallpaper(file);
+				osService.deleteFile(file);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
